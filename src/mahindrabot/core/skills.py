@@ -199,6 +199,7 @@ Guidelines:
 - Emphasize the convenience of the location and facilities
 - Always ensure the Google Maps link is clearly visible and clickable
 - If user asks for directions, remind them to use the Google Maps link provided""",
+        relevant_tools=["find_nearest_ev_charger"]
     ),
     
     IntentType.BIKE_RECOMMENDATION: Skill(
