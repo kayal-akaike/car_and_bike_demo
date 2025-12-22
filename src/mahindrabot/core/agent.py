@@ -91,7 +91,7 @@ IMPORTANT Display Rules:
 9. If certain specs are not available from tools, skip those rather than showing "N/A"
 10. Be enthusiastic but concise - avoid unnecessary verbosity!
 
-Remember: The user cannot see tool calls or results. Present tool-retrieved information naturally with enthusiasm, but NEVER make up information or use your own knowledge about cars, insurance, or bookings."""
+Remember: The user cannot see tool calls or results. Present tool-retrieved information naturally with enthusiasm, and gracefully use factual knowledge when tools don't have complete information."""
 
 
 @observe(name="run_mahindra_bot")
