@@ -43,14 +43,11 @@ const ChatbotWidget: React.FC<ChatbotWidgetProps> = ({ onClick, isOpen }) => {
 
         {/* Icon container */}
         <div className="relative z-10 flex items-center justify-center w-full h-full">
-          <div className="relative">
-            <MessageCircle size={24} className="stroke-current text-[#46443f]" />
-            <motion.div
-              className="absolute -top-1 -right-1 w-2 h-2 bg-[#46443f] rounded-full"
-              animate={{ scale: [1, 1.3, 1] }}
-              transition={{ duration: 1, repeat: Infinity }}
-            />
-          </div>
+          <img 
+            src="/ai-avatar.png" 
+            alt="AI Assistant" 
+            className="w-9/12 h-4/12 object-contain"
+          />
         </div>
 
         {/* Pulse rings */}

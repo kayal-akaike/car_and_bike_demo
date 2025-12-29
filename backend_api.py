@@ -11,10 +11,15 @@ from typing import List, Dict, Any, AsyncGenerator
 import json
 import asyncio
 import sys
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from mahindrabot.core import AgentToolKit, run_mahindra_bot
 from mahindrabot.core.intents import classify_intent
@@ -55,6 +60,9 @@ class ToolResult(BaseModel):
 class ChatRequest(BaseModel):
     message: str
     conversation_history: List[ChatMessage] = []
+
+class PasswordVerification(BaseModel):
+    password: str
 
 class ChatResponse(BaseModel):
     message: str
@@ -101,6 +109,16 @@ async def startup_event():
 async def root():
     """Health check endpoint."""
     return {"status": "healthy", "message": "Mahindra Bot API is running"}
+
+@app.post("/verify-password")
+async def verify_password(request: PasswordVerification):
+    """Verify login password against APP_PASSWORD from environment."""
+    app_password = os.getenv("APP_PASSWORD", "")
+    
+    if not app_password:
+        raise HTTPException(status_code=500, detail="APP_PASSWORD not configured")
+    
+    return {"valid": request.password == app_password}
 
 @app.post("/chat")
 async def chat(request: ChatRequest) -> ChatResponse:

@@ -406,7 +406,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     >
       {/* Avatar */}
       <motion.div 
-        className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center border-2 shadow-lg ${
+        className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center border-2 shadow-lg overflow-hidden ${
           isUser 
             ? 'bg-[#f2e500] border-[#d9cf00] text-[#46443f]' 
             : 'bg-[#46443f] border-gray-500 text-white'
@@ -417,17 +417,18 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
         {isUser ? (
           <User size={18} className="drop-shadow-sm" />
         ) : (
-          <motion.div
-            animate={{ rotate: [0, 360] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-          >
-            <Bot size={18} className="drop-shadow-sm" />
-          </motion.div>
+          <div className="w-full h-full flex items-center justify-center">
+            <img 
+              src="/ai-avatar.png" 
+              alt="AI Assistant" 
+              className="w-full h-full object-cover"
+            />
+          </div>
         )}
       </motion.div>
 
       {/* Message Content */}
-      <div className={`flex-1 max-w-[280px] ${isUser ? 'items-end' : 'items-start'}`}>
+      <div className={`flex-1 max-w-[480px] ${isUser ? 'items-end' : 'items-start'}`}>
         {/* Message Bubble */}
         <motion.div 
           className={`

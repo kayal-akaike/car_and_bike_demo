@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Minimize2, Bot, Sparkles, X, Settings, ChevronDown } from 'lucide-react';
+import { Send, Minimize2, Bot, Sparkles, X, Settings, ChevronDown, Maximize2 } from 'lucide-react';
 import ChatMessage from './ChatMessage';
 import TypingIndicator from './TypingIndicator';
 import { useChatApi } from '../hooks/useChatApi';
@@ -23,6 +23,7 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose }) => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
   const [selectedModel, setSelectedModel] = useState('Claude Sonnet 4.5');
   const [temperature, setTemperature] = useState(0.7);
@@ -105,13 +106,17 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose }) => {
 
   return (
     <motion.div
-      className="fixed bottom-6 right-6 z-40 w-96 max-w-[calc(100vw-2rem)]"
+      className={`fixed z-40 ${
+        isMaximized 
+          ? 'top-4 left-4 right-4 bottom-4 md:left-[10%] md:right-[5%]' 
+          : 'bottom-6 right-6 w-96 max-w-[calc(100vw-2rem)]'
+      }`}
       initial={{ opacity: 0, scale: 0.8, y: 20 }}
       animate={{ 
         opacity: 1, 
         scale: 1, 
         y: 0,
-        height: isMinimized ? 64 : 600
+        height: isMinimized ? 64 : isMaximized ? 'calc(100vh - 2rem)' : 600
       }}
       exit={{ opacity: 0, scale: 0.8, y: 20 }}
       transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 25 }}
@@ -138,15 +143,17 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose }) => {
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" />
           <div className="relative flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <motion.div 
-                className="w-8 h-8 bg-[#f2e500] rounded-full flex items-center justify-center"
-                animate={{ rotate: [0, 360] }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+              <div 
+                className="w-8 h-8 bg-[#f2e500] rounded-full flex items-center justify-center overflow-hidden"
               >
-                <Bot size={16} className="text-[#46443f]" />
-              </motion.div>
+                <img 
+                  src="/ai-avatar.png" 
+                  alt="AI Assistant" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <div>
-                <h3 className="text-white font-bold text-sm">Mahindra Assistant</h3>
+                <h3 className="text-white font-bold text-sm">TESSA</h3>
                 <div className="flex items-center space-x-1">
                   <motion.div 
                     className="w-1.5 h-1.5 bg-[#f2e500] rounded-full"
@@ -159,6 +166,18 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose }) => {
             </div>
             
             <div className="flex items-center space-x-2">
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMaximized(!isMaximized);
+                }}
+                className="w-5 h-5 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all duration-200"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label={isMaximized ? "Restore size" : "Maximize chat"}
+              >
+                <Maximize2 size={10} className="text-white" />
+              </motion.button>
               <motion.button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -198,7 +217,10 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose }) => {
               transition={{ duration: 0.3 }}
             >
               {/* Messages area with glass scrollability */}
-              <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-transparent via-white/30 to-transparent backdrop-blur-sm min-h-0" style={{ maxHeight: '400px' }}>
+              <div 
+                className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-transparent via-white/30 to-transparent backdrop-blur-sm min-h-0" 
+                style={{ maxHeight: isMaximized ? 'calc(100vh - 220px)' : '400px' }}
+              >
                 {messages.length === 1 && (
                   <motion.div 
                     className="mb-6 space-y-4"
