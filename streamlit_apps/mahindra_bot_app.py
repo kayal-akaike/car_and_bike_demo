@@ -36,6 +36,18 @@ from mahindrabot.services.llm_service.agent import AgentResponse
 # Load environment variables
 load_dotenv()
 
+# Helper function to get secrets from both local .env and Streamlit Cloud
+def get_secret(key: str, default: str = None) -> str:
+    """Get secret from Streamlit secrets or environment variable."""
+    try:
+        # Try Streamlit secrets first (for cloud deployment)
+        if hasattr(st, 'secrets') and key in st.secrets:
+            return st.secrets[key]
+    except Exception:
+        pass
+    # Fall back to environment variable (for local development)
+    return os.getenv(key, default)
+
 # Langfuse will automatically track calls with @observe decorator
 # ============================================================================
 # Configuration and Setup
@@ -44,7 +56,7 @@ load_dotenv()
 def check_login() -> bool:
     """Check if user is authenticated or if DEBUG mode is enabled."""
     # Skip login if DEBUG mode is enabled
-    debug_mode = os.getenv("DEBUG", "").lower() in ("true", "1", "yes")
+    debug_mode = get_secret("DEBUG", "").lower() in ("true", "1", "yes")
     if debug_mode:
         return True
     
@@ -75,8 +87,8 @@ def show_login_page():
             submit = st.form_submit_button("🔐 Login", use_container_width=True)
             
             if submit:
-                # Get password from environment variable
-                correct_password = os.getenv("APP_PASSWORD")
+                # Get password from environment variable or Streamlit secrets
+                correct_password = get_secret("APP_PASSWORD")
                 
                 if not correct_password:
                     st.error("❌ APP_PASSWORD not configured in environment variables")
@@ -93,8 +105,8 @@ def check_prerequisites() -> tuple[bool, list[str]]:
     errors = []
     
     # Check for API key
-    if not os.getenv("OPENAI_API_KEY"):
-        errors.append("❌ OPENAI_API_KEY not set in environment")
+    if not get_secret("OPENAI_API_KEY"):
+        errors.append("❌ OPENAI_API_KEY not set in environment or Streamlit secrets")
     
     # Check for data directories
     car_data_path = Path("data/new_car_details")
@@ -284,7 +296,7 @@ def render_sidebar():
         st.caption("Your AI Assistant for Cars, Insurance & Bookings")
         
         # Show DEBUG mode indicator if enabled
-        debug_mode = os.getenv("DEBUG", "").lower() in ("true", "1", "yes")
+        debug_mode = get_secret("DEBUG", "").lower() in ("true", "1", "yes")
         if debug_mode:
             st.warning("🔧 DEBUG MODE - Login Disabled")
         

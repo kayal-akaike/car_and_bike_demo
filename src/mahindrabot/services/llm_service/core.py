@@ -4,8 +4,17 @@ import contextlib
 from collections.abc import Callable, Generator
 from typing import TypeVar, cast
 
-from langfuse import observe
-from langfuse.openai import openai
+# Temporarily disable langfuse to avoid compatibility issues
+try:
+    from langfuse import observe
+    from langfuse.openai import openai
+except Exception:
+    # Fallback decorator and use standard openai if langfuse fails
+    def observe(name=None):
+        def decorator(func):
+            return func
+        return decorator
+    import openai
 from pydantic import BaseModel, ValidationError
 
 from .config import LLMConfig

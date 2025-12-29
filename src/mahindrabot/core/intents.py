@@ -1,6 +1,14 @@
 """Intent classification for user messages."""
 
-from langfuse import observe
+# Temporarily disable langfuse to avoid compatibility issues
+try:
+    from langfuse import observe
+except Exception:
+    # Fallback decorator if langfuse fails
+    def observe(name=None):
+        def decorator(func):
+            return func
+        return decorator
 
 from mahindrabot.services.llm_service import (
     LLMConfig,

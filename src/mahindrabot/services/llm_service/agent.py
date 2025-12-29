@@ -6,7 +6,16 @@ from collections.abc import Callable, Generator
 from enum import StrEnum
 from typing import Literal, cast
 
-from langfuse import observe
+# Temporarily disable langfuse to avoid compatibility issues
+try:
+    from langfuse import observe
+except Exception:
+    # Fallback decorator if langfuse fails
+    def observe(name=None):
+        def decorator(func):
+            return func
+        return decorator
+
 from pydantic import BaseModel
 
 from .config import LLMConfig

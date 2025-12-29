@@ -8,6 +8,10 @@ wheels/
 
 # Virtual environments
 .venv
+venv/
+
+# Node modules
+node_modules/
 
 # Exception: track FAQ embeddings cache
 !.temp/
@@ -23,5 +27,11 @@ experiment-notebooks/
 # env files
 .env
 .env.*
+!.env.example
+
+# Streamlit secrets
+.streamlit/secrets.toml
+!.streamlit/secrets.toml.example
+!.streamlit/config.toml
 
 .vscode
