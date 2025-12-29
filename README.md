@@ -1,14 +1,196 @@
-# Web Scraping Scripts
+# 🚗 Vehicle Assistant Bot (TESSA)
 
-A collection of Python scripts for extracting data from various websites including insurance FAQs, RTO information, and car details.
+An intelligent chatbot powered by GPT-4o-mini that helps users with car and bike information, comparisons, EV charging locations, insurance FAQs, and more. Features a professional React frontend with role-based authentication and a FastAPI backend.
+
+## ✨ Features
+
+- 🤖 AI-powered vehicle assistant (TESSA)
+- 🔐 Role-based authentication (Admin/User)
+- 🚙 **262 cars** and **81 bikes** database with detailed specifications
+- ⚡ **770 EV charging locations** across India
+- 💬 **329 FAQs** covering insurance, RTO procedures, and vehicle-related queries
+- 🔄 Smart vehicle comparison with markdown-formatted responses
+- 📊 Dynamic contextual loading messages
+- 🎨 Professional UI with CNB branding and Akaike AI attribution
+- 🛠️ Admin panel for model configuration
 
 ## 🚀 Quick Start
 
-All scripts run in the `scrape` conda environment:
+### Prerequisites
+
+- **Python 3.11+** installed
+- **Node.js 16+** and npm installed
+- **OpenAI API Key** (for GPT-4o-mini)
+- **Git** (to clone the repository)
+
+### 1. Clone the Repository
 
 ```bash
-conda run -n scrape python scripts/<script_name>.py [OPTIONS]
+git clone https://github.com/kayal-akaike/car_and_bike_demo.git
+cd car_and_bike_demo
 ```
+
+### 2. Backend Setup
+
+#### Create Python Virtual Environment
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+# On Windows:
+venv\Scripts\activate
+# On macOS/Linux:
+source venv/bin/activate
+```
+
+#### Install Python Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+#### Configure Environment Variables
+
+Create a `.env` file in the root directory:
+
+```bash
+# .env file
+OPENAI_API_KEY=your-openai-api-key-here
+APP_PASSWORD=test123
+OTP=4529
+DEBUG=true
+ENVIRONMENT=development
+```
+
+**Important:** Replace `your-openai-api-key-here` with your actual OpenAI API key.
+
+#### Start Backend Server
+
+```bash
+python backend_api.py
+```
+
+Backend will run on **http://localhost:8000**
+
+### 3. Frontend Setup
+
+Open a **new terminal** window and navigate to the frontend directory:
+
+```bash
+cd react-frontend
+```
+
+#### Install Node Dependencies
+
+```bash
+npm install
+```
+
+#### Start Frontend Server
+
+```bash
+npm start
+```
+
+Frontend will run on **http://localhost:3000** and automatically open in your browser.
+
+## 🔑 Login Credentials
+
+- **Password:** `test123`
+- **Roles:** 
+  - 👤 **User** - Clean chat interface
+  - 🔐 **Admin** - Full access with config panel and tool execution visibility
+
+## 📖 Usage
+
+1. **Login:** Enter password `test123` and select your role (User or Admin)
+2. **Quick Actions:** Use pre-configured buttons for common queries:
+   - Cars between 8 to 12 lakh budget 🚗
+   - Is EV a good choice for me if I drive 25 km daily? ⚡
+   - Compare Tata Nexon and Tata Nexon EV ⚖️
+   - What is the battery range of Tata Nexon EV? 🔋
+3. **Custom Queries:** Type any vehicle-related question
+4. **Admin Features:** Configure model settings (temperature, model selection)
+
+## 🗂️ Project Structure
+
+```
+vehicle_bot/
+├── backend_api.py              # FastAPI backend server
+├── requirements.txt            # Python dependencies
+├── .env                        # Environment variables (create this)
+├── data/                       # Vehicle & FAQ data (JSON)
+│   ├── new_cars_list.json      # 262 cars
+│   ├── new_bikes_list.json     # 81 bikes
+│   ├── ev-locations.json       # 770 EV charging stations
+│   ├── consolidated_faqs.json  # 329 FAQs
+│   └── new_car_details/        # Detailed car specifications
+│   └── new_bike_details/       # Detailed bike specifications
+├── src/
+│   └── mahindrabot/            # Core Python services
+│       ├── services/
+│       │   ├── car_service.py
+│       │   ├── bike_service.py
+│       │   ├── faq_service.py
+│       │   └── ev_charger_location_service.py
+│       └── llm_service/
+├── react-frontend/             # React TypeScript frontend
+│   ├── package.json
+│   ├── public/
+│   │   ├── cnb.png            # CNB logo
+│   │   ├── ai-avatar.png      # TESSA avatar
+│   │   └── akaike_logo.svg    # Akaike AI logo
+│   └── src/
+│       ├── components/
+│       │   ├── ChatbotPopup.tsx
+│       │   ├── ChatMessage.tsx
+│       │   ├── Login.tsx
+│       │   └── TypingIndicator.tsx
+│       ├── hooks/
+│       │   └── useChatApi.ts
+│       └── App.tsx
+└── scripts/                    # Data extraction scripts
+    ├── extract_carandbike_new_car_data.py
+    └── extract_carandbike_new_bike_data.py
+```
+
+## 🛠️ Tech Stack
+
+**Frontend:**
+- React 18 with TypeScript
+- Tailwind CSS for styling
+- Framer Motion for animations
+- Axios for API communication
+
+**Backend:**
+- FastAPI (Python)
+- OpenAI GPT-4o-mini
+- Uvicorn ASGI server
+
+## 📝 API Endpoints
+
+- `POST /verify-password` - Authentication
+- `POST /chat` - Send message and get AI response
+- `POST /chat/stream` - Streaming chat (available but not used)
+
+## 🧪 Development
+
+### Running Tests
+
+```bash
+# Backend tests
+pytest tests/
+
+# Frontend tests
+cd react-frontend
+npm test
+```
+
+### Data Extraction Scripts
+
+All data extraction scripts run in the `scrape` conda environment (optional, for data collection only):
 
 ## 📋 Available Scripts
 
@@ -602,16 +784,117 @@ When adding new scripts:
 5. Make scripts resumable where possible
 6. Update this README and relevant documentation
 
+## 🐛 Troubleshooting
+
+### Backend Issues
+
+**Problem:** `ModuleNotFoundError` when running backend
+```bash
+# Solution: Ensure virtual environment is activated and dependencies installed
+venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+**Problem:** `OPENAI_API_KEY not found`
+```bash
+# Solution: Check .env file exists in root directory with valid API key
+# Make sure .env file has: OPENAI_API_KEY=your-key-here
+```
+
+**Problem:** Backend port 8000 already in use
+```bash
+# Solution: Kill the process using port 8000
+# Windows:
+netstat -ano | findstr :8000
+taskkill /PID <PID> /F
+
+# Or change port in backend_api.py:
+# uvicorn.run(app, host="0.0.0.0", port=8001)
+```
+
+### Frontend Issues
+
+**Problem:** `npm install` fails
+```bash
+# Solution: Clear npm cache and retry
+npm cache clean --force
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**Problem:** Frontend can't connect to backend
+- Ensure backend is running on http://localhost:8000
+- Check CORS settings in backend_api.py
+- Verify `axios.defaults.baseURL` in frontend code
+
+**Problem:** Login not working
+- Verify password is `test123`
+- Check backend `/verify-password` endpoint is accessible
+- Check browser console for errors
+
+### Data Loading Issues
+
+**Problem:** "Failed to load X cars/bikes"
+- Check data files exist in `data/` directory
+- Verify JSON format is valid
+- Check console output for specific file errors
+
+## 🚀 Deployment
+
+### Frontend (Vercel)
+
+1. Push code to GitHub
+2. Import repository in Vercel
+3. Configure:
+   - **Root Directory:** `react-frontend`
+   - **Build Command:** `npm run build`
+   - **Output Directory:** `build`
+   - **Environment Variable:** `REACT_APP_API_URL` = your backend URL
+
+### Backend (Render / Railway)
+
+1. Create new Web Service
+2. Configure:
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `uvicorn backend_api:app --host 0.0.0.0 --port $PORT`
+   - **Environment Variables:**
+     - `OPENAI_API_KEY`
+     - `APP_PASSWORD`
+     - `OTP`
+     - `ENVIRONMENT=production`
+3. Update CORS in backend to allow your frontend domain
+
+## 📚 Additional Resources
+
+- [OpenAI API Documentation](https://platform.openai.com/docs)
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [React TypeScript Documentation](https://react-typescript-cheatsheet.netlify.app/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
 ## 📄 License
 
-[Your License Here]
+This project is licensed under the MIT License.
+
+## 🙏 Acknowledgments
+
+- **Akaike AI** - AI-powered solutions
+- **CNB** - Vehicle database and information
+- **OpenAI** - GPT-4o-mini language model
 
 ## 📧 Contact
 
-[Your Contact Information]
+**Repository:** [kayal-akaike/car_and_bike_demo](https://github.com/kayal-akaike/car_and_bike_demo)
 
 ---
 
-**Last Updated:** 2024-12-14  
-**Python Version:** 3.12  
-**Environment:** scrape
+**Last Updated:** December 29, 2024  
+**Version:** 1.0.0  
+**Status:** Production Ready ✅
