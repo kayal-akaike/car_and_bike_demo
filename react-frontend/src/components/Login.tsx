@@ -67,80 +67,81 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         {/* Login Card */}
         <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-[#f2e500] to-[#d9cf00] p-8 text-center">
+          <div className="bg-gradient-to-r from-[#f2e500] to-[#d9cf00] p-6 text-center">
             <motion.div
-              className="w-20 h-20 mx-auto mb-4 bg-white rounded-full flex items-center justify-center shadow-lg"
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              transition={{ type: "spring", stiffness: 400 }}
+              className="mx-auto mb-3 flex items-center justify-center"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
             >
               <img 
-                src="/ai-avatar.png" 
-                alt="TESSA" 
-                className="w-16 h-16 object-contain"
+                src="/cnb.png" 
+                alt="Car & Bike Assistant" 
+                className="h-16 object-contain"
               />
             </motion.div>
-            <h1 className="text-3xl font-bold text-[#46443f] mb-2">Welcome to TESSA</h1>
-            <p className="text-[#46443f]/80 text-sm">Your AI Vehicle Assistant</p>
+            <h1 className="text-2xl font-bold text-[#46443f] mb-1">Vehicle Assistant Portal</h1>
+            <p className="text-[#46443f]/80 text-xs">Secure Access</p>
           </div>
 
           {/* Login Form */}
-          <div className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Role Selection */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Select Role
+                <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                  Login as
                 </label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <motion.button
                     type="button"
                     onClick={() => setRole('user')}
-                    className={`p-4 rounded-lg border-2 transition-all ${
+                    className={`px-3 py-2 rounded-lg border transition-all text-xs font-medium ${
                       role === 'user'
-                        ? 'border-[#f2e500] bg-[#f2e500]/10 text-[#46443f]'
-                        : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
+                        ? 'border-[#f2e500] bg-[#f2e500] text-[#46443f] shadow-md'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
                     }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">👤</div>
-                      <div className="font-semibold text-sm">User</div>
+                    <div className="flex items-center justify-center gap-1.5">
+                      <span className="text-sm">👤</span>
+                      <span>User</span>
                     </div>
                   </motion.button>
                   <motion.button
                     type="button"
                     onClick={() => setRole('admin')}
-                    className={`p-4 rounded-lg border-2 transition-all ${
+                    className={`px-3 py-2 rounded-lg border transition-all text-xs font-medium ${
                       role === 'admin'
-                        ? 'border-[#f2e500] bg-[#f2e500]/10 text-[#46443f]'
-                        : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
+                        ? 'border-[#f2e500] bg-[#f2e500] text-[#46443f] shadow-md'
+                        : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400'
                     }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">👨‍💼</div>
-                      <div className="font-semibold text-sm">Admin</div>
+                    <div className="flex items-center justify-center gap-1.5">
+                      <span className="text-sm">🔐</span>
+                      <span>Admin</span>
                     </div>
                   </motion.button>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Enter Access Password
+                <label className="block text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">
+                  Password
                 </label>
                 <div className="relative">
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                    <Lock size={20} className="text-gray-400" />
+                    <Lock size={18} className="text-gray-400" />
                   </div>
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password"
-                    className="w-full pl-11 pr-11 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f2e500] focus:border-transparent transition-all"
+                    placeholder="••••••••"
+                    className="w-full pl-10 pr-10 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#f2e500] focus:border-transparent transition-all"
                     required
                   />
                   <button
@@ -148,7 +149,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
@@ -167,39 +168,32 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               <motion.button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-[#f2e500] to-[#d9cf00] text-[#46443f] font-bold py-3 rounded-lg hover:from-[#d9cf00] hover:to-[#f2e500] transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                whileHover={{ scale: isLoading ? 1 : 1.02 }}
-                whileTap={{ scale: isLoading ? 1 : 0.98 }}
+                className="w-full bg-gradient-to-r from-[#f2e500] to-[#d9cf00] text-[#46443f] font-semibold py-2.5 rounded-lg hover:from-[#d9cf00] hover:to-[#f2e500] transition-all duration-300 shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                whileHover={{ scale: isLoading ? 1 : 1.01 }}
+                whileTap={{ scale: isLoading ? 1 : 0.99 }}
               >
                 {isLoading ? (
                   <span className="flex items-center justify-center">
-                    <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    Verifying...
+                    Authenticating...
                   </span>
                 ) : (
-                  'Access Dashboard'
+                  'Sign In'
                 )}
               </motion.button>
             </form>
 
-            <div className="mt-6 text-center text-sm text-gray-500">
-              <p>Need access? Contact your administrator.</p>
+            <div className="mt-4 pt-4 border-t border-gray-200 flex flex-col items-center gap-2">
+              <p className="text-[10px] text-gray-500">Powered by</p>
+              <a href="https://www.akaike.ai/" target="_blank" rel="noopener noreferrer" className="cursor-pointer hover:opacity-80 transition-opacity">
+                <img src="/akaike_logo.svg" alt="Akaike AI" className="h-5" />
+              </a>
             </div>
           </div>
         </div>
-
-        {/* Footer */}
-        <motion.div
-          className="text-center mt-6 text-white/60 text-sm"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-        >
-          <p>Powered by TESSA AI • Secure Access</p>
-        </motion.div>
       </motion.div>
     </div>
   );

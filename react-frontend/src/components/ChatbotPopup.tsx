@@ -171,10 +171,10 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose, userRole }) => {
   };
 
   const quickActions = [
-    { text: "Vehicle loan info", icon: "💰", color: "from-green-400 to-blue-500" },
-    { text: "RC transfer", icon: "📄", color: "from-purple-400 to-pink-500" },
-    { text: "Insurance help", icon: "🛡️", color: "from-blue-400 to-purple-500" },
-    { text: "EV locations", icon: "⚡", color: "from-yellow-400 to-orange-500" }
+    { text: "Cars between 8 to 12 lakh budget", icon: "🚗", color: "from-green-400 to-blue-500" },
+    { text: "Is EV a good choice for me if I drive 25 km daily?", icon: "⚡", color: "from-purple-400 to-pink-500" },
+    { text: "Compare Tata Nexon and Tata Nexon EV", icon: "⚖️", color: "from-blue-400 to-purple-500" },
+    { text: "What is the battery range of Tata Nexon EV?", icon: "🔋", color: "from-yellow-400 to-orange-500" }
   ];
 
   return (
@@ -207,9 +207,8 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose, userRole }) => {
         
         {/* Enhanced Header with Glass Effect */}
         <motion.div 
-          className="relative bg-gradient-to-r from-[#46443f]/95 to-[#36342f]/95 backdrop-blur-md px-5 py-3 cursor-pointer border-b border-white/20"
-          onClick={() => setIsMinimized(!isMinimized)}
-          whileHover={{ scale: 1.01, opacity: 0.95 }}
+          className="relative bg-gradient-to-r from-[#46443f]/95 to-[#36342f]/95 backdrop-blur-md px-5 py-3 border-b border-white/20"
+          whileHover={{ opacity: 0.95 }}
           transition={{ duration: 0.2 }}
         >
           {/* Glass shine effect */}
@@ -242,7 +241,12 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose, userRole }) => {
               <motion.button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsMaximized(!isMaximized);
+                  if (isMaximized) {
+                    setIsMaximized(false);
+                  } else {
+                    setIsMaximized(true);
+                    setIsMinimized(false);
+                  }
                 }}
                 className="w-5 h-5 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all duration-200"
                 whileHover={{ scale: 1.1 }}
@@ -254,7 +258,12 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose, userRole }) => {
               <motion.button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsMinimized(!isMinimized);
+                  if (isMinimized) {
+                    setIsMinimized(false);
+                  } else {
+                    setIsMinimized(true);
+                    setIsMaximized(false);
+                  }
                 }}
                 className="w-5 h-5 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-all duration-200"
                 whileHover={{ scale: 1.1 }}
@@ -321,12 +330,12 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose, userRole }) => {
                     </div>
 
                     {/* Enhanced Quick action cards */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2">
                       {quickActions.map((action, index) => (
                         <motion.button
                           key={action.text}
                           onClick={() => setInputValue(action.text)}
-                          className="group relative bg-white hover:bg-gradient-to-br hover:from-[#f2e500] hover:to-[#d9cf00] p-4 rounded-xl border-2 border-gray-200 hover:border-[#f2e500] shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
+                          className="group relative bg-white hover:bg-gradient-to-br hover:from-[#f2e500] hover:to-[#d9cf00] p-3 rounded-lg border-2 border-gray-200 hover:border-[#f2e500] shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
                           initial={{ opacity: 0, scale: 0.8, y: 20 }}
                           animate={{ opacity: 1, scale: 1, y: 0 }}
                           transition={{ 
@@ -334,8 +343,8 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose, userRole }) => {
                             type: "spring",
                             stiffness: 200
                           }}
-                          whileHover={{ scale: 1.05, y: -4 }}
-                          whileTap={{ scale: 0.95 }}
+                          whileHover={{ scale: 1.03, y: -2 }}
+                          whileTap={{ scale: 0.97 }}
                         >
                           {/* Animated background shine effect */}
                           <motion.div
@@ -345,11 +354,11 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose, userRole }) => {
                             transition={{ duration: 0.6 }}
                           />
                           
-                          <div className="relative flex flex-col items-center text-center space-y-2">
-                            <div className="text-2xl group-hover:scale-110 transition-transform duration-300">
+                          <div className="relative flex flex-col items-center text-center space-y-1.5">
+                            <div className="text-xl group-hover:scale-110 transition-transform duration-300">
                               {action.icon}
                             </div>
-                            <span className="text-xs font-semibold text-gray-700 group-hover:text-[#46443f] transition-colors leading-tight">
+                            <span className="text-[10px] font-semibold text-gray-700 group-hover:text-[#46443f] transition-colors leading-tight">
                               {action.text}
                             </span>
                           </div>
