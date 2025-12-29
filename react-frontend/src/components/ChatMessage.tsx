@@ -124,16 +124,16 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, userRole = 'user' })
     // Parse markdown formatting
     let parsed = text;
     
-    // Bold text: **text** or __text__
-    parsed = parsed.replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold">$1</strong>');
-    parsed = parsed.replace(/__(.+?)__/g, '<strong class="font-bold">$1</strong>');
+    // Bold text: **text** or __text__ (handle multiline)
+    parsed = parsed.replace(/\*\*([^\*]+?)\*\*/g, '<strong class="font-bold">$1</strong>');
+    parsed = parsed.replace(/__([^_]+?)__/g, '<strong class="font-bold">$1</strong>');
     
-    // Italic: *text* or _text_
-    parsed = parsed.replace(/\*(.+?)\*/g, '<em class="italic">$1</em>');
-    parsed = parsed.replace(/_(.+?)_/g, '<em class="italic">$1</em>');
+    // Italic: *text* or _text_ (but not ** or __)
+    parsed = parsed.replace(/(?<!\*)\*(?!\*)([^\*]+?)\*(?!\*)/g, '<em class="italic">$1</em>');
+    parsed = parsed.replace(/(?<!_)_(?!_)([^_]+?)_(?!_)/g, '<em class="italic">$1</em>');
     
     // Code: `code`
-    parsed = parsed.replace(/`(.+?)`/g, '<code class="bg-gray-100 px-1 rounded text-xs">$1</code>');
+    parsed = parsed.replace(/`([^`]+?)`/g, '<code class="bg-gray-100 px-1 rounded text-xs">$1</code>');
     
     return parsed;
   };

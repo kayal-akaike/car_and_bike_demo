@@ -1,6 +1,7 @@
 {
-  "name": "react-frontend",
-  "version": "0.1.0",
+  "name": "vehicle-assistant-frontend",
+  "version": "1.0.0",
+  "description": "React TypeScript frontend for Vehicle Assistant Bot (TESSA)",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
