@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 interface LoginProps {
-  onLogin: () => void;
+  onLogin: (role: 'admin' | 'user') => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
@@ -11,6 +11,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [role, setRole] = useState<'admin' | 'user'>('user');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,8 +31,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       const data = await response.json();
 
       if (data.valid) {
-        localStorage.setItem('isAuthenticated', 'true');
-        onLogin();
+        onLogin(role);
       } else {
         setError('Invalid password. Please try again.');
       }
@@ -86,6 +86,47 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           {/* Login Form */}
           <div className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Role Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Select Role
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <motion.button
+                    type="button"
+                    onClick={() => setRole('user')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      role === 'user'
+                        ? 'border-[#f2e500] bg-[#f2e500]/10 text-[#46443f]'
+                        : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="text-center">
+                      <div className="text-2xl mb-2">👤</div>
+                      <div className="font-semibold text-sm">User</div>
+                    </div>
+                  </motion.button>
+                  <motion.button
+                    type="button"
+                    onClick={() => setRole('admin')}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      role === 'admin'
+                        ? 'border-[#f2e500] bg-[#f2e500]/10 text-[#46443f]'
+                        : 'border-gray-300 bg-white text-gray-600 hover:border-gray-400'
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="text-center">
+                      <div className="text-2xl mb-2">👨‍💼</div>
+                      <div className="font-semibold text-sm">Admin</div>
+                    </div>
+                  </motion.button>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Enter Access Password

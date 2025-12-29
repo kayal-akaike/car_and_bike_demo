@@ -13,22 +13,16 @@ function App() {
   const [activeTab, setActiveTab] = useState('brand');
   const [selectedCity, setSelectedCity] = useState('New Delhi');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'user'>('user');
 
-  useEffect(() => {
-    // Check if user is already authenticated
-    const authStatus = localStorage.getItem('isAuthenticated');
-    if (authStatus === 'true') {
-      setIsAuthenticated(true);
-    }
-  }, []);
-
-  const handleLogin = () => {
+  const handleLogin = (role: 'admin' | 'user') => {
+    setUserRole(role);
     setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated');
     setIsAuthenticated(false);
+    setUserRole('user');
   };
 
   // Show login page if not authenticated
@@ -203,7 +197,7 @@ function App() {
 
       <AnimatePresence>
         {isChatOpen && (
-          <ChatbotPopup onClose={() => setIsChatOpen(false)} />
+          <ChatbotPopup onClose={() => setIsChatOpen(false)} userRole={userRole} />
         )}
       </AnimatePresence>
     </div>

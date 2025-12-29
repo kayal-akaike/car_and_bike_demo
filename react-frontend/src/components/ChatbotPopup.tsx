@@ -10,9 +10,10 @@ import { Message } from '../types/chat';
 
 interface ChatbotPopupProps {
   onClose: () => void;
+  userRole: 'admin' | 'user';
 }
 
-const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose }) => {
+const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose, userRole }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -27,6 +28,13 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose }) => {
   const [showConfig, setShowConfig] = useState(false);
   const [selectedModel, setSelectedModel] = useState('Claude Sonnet 4.5');
   const [temperature, setTemperature] = useState(0.7);
+  const [loadingMessages, setLoadingMessages] = useState<string[]>([
+    "Searching our database",
+    "Analyzing your request",
+    "Finding the best match",
+    "Retrieving details",
+    "Processing information"
+  ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -58,6 +66,71 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose }) => {
 
     setMessages(prev => [...prev, userMessage]);
     const messageToSend = inputValue.trim();
+    
+    // Determine loading messages based on query content
+    const query = messageToSend.toLowerCase();
+    
+    // Check for comparison queries first
+    if (query.includes('compare') || query.includes('vs') || query.includes('difference')) {
+      if (query.includes('bike') || query.includes('motorcycle') || query.includes('scooter')) {
+        setLoadingMessages([
+          "⚖️ Comparing bikes",
+          "📊 Analyzing specifications",
+          "🏍️ Loading bike details",
+          "💰 Checking price differences",
+          "✨ Preparing comparison"
+        ]);
+      } else {
+        setLoadingMessages([
+          "⚖️ Comparing vehicles",
+          "📊 Analyzing specifications",
+          "🚗 Loading car details",
+          "💰 Checking price differences",
+          "✨ Preparing comparison"
+        ]);
+      }
+    } else if (query.includes('charging') || query.includes('charger') || query.includes('charging station')) {
+      setLoadingMessages([
+        "⚡ Finding EV charging stations",
+        "📍 Checking locations near you",
+        "🗺️ Loading station details",
+        "🔌 Verifying availability",
+        "✨ Preparing results"
+      ]);
+    } else if (query.includes('car') || query.includes('suv') || query.includes('sedan')) {
+      setLoadingMessages([
+        "🔍 Searching for cars",
+        "🚗 Retrieving car details",
+        "📊 Comparing specifications",
+        "💰 Checking prices",
+        "✨ Preparing recommendations"
+      ]);
+    } else if (query.includes('bike') || query.includes('motorcycle') || query.includes('scooter')) {
+      setLoadingMessages([
+        "🔍 Searching for bikes",
+        "🏍️ Retrieving bike details",
+        "📊 Comparing features",
+        "💰 Checking prices",
+        "✨ Preparing recommendations"
+      ]);
+    } else if (query.includes('insurance') || query.includes('loan') || query.includes('faq')) {
+      setLoadingMessages([
+        "💬 Searching knowledge base",
+        "📚 Finding relevant information",
+        "🔎 Analyzing your query",
+        "💡 Gathering insights",
+        "✅ Preparing answer"
+      ]);
+    } else {
+      setLoadingMessages([
+        "🤔 Understanding your request",
+        "🔍 Searching our database",
+        "📊 Analyzing information",
+        "💡 Finding the best answer",
+        "✨ Preparing response"
+      ]);
+    }
+    
     setInputValue('');
 
     try {
@@ -293,11 +366,11 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose }) => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <ChatMessage message={message} />
+                    <ChatMessage message={message} userRole={userRole} />
                   </motion.div>
                 ))}
 
-                {isLoading && <TypingIndicator />}
+                {isLoading && <TypingIndicator messages={loadingMessages} />}
                 
                 {error && (
                   <motion.div 
@@ -368,7 +441,7 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose }) => {
                         <input
                           type="range"
                           min="0"
-                          max="2"
+                          max="1"
                           step="0.01"
                           value={temperature}
                           onChange={(e) => setTemperature(parseFloat(e.target.value))}
@@ -436,29 +509,33 @@ const ChatbotPopup: React.FC<ChatbotPopupProps> = ({ onClose }) => {
                   
                   {/* Footer with Settings Button */}
                   <div className="flex items-center justify-between pt-0.5">
-                    <motion.p 
-                      className="text-[10px] text-gray-500"
-                      initial={{ opacity: 0 }}
+<motion.div
+                      className="flex flex-col items-start gap-1"
                       animate={{ opacity: 1 }}
                       transition={{ delay: 1 }}
                     >
-                      Powered by AKAIKE AI • Adopt AI
-                    </motion.p>
+                      <p className="text-[10px] text-gray-500">Powered by</p>
+                      <a href="https://www.akaike.ai/" target="_blank" rel="noopener noreferrer" className="cursor-pointer hover:opacity-80 transition-opacity">
+                        <img src="/akaike_logo.svg" alt="Akaike AI" className="h-5" />
+                      </a>
+                    </motion.div>
                     
-                    <motion.button
-                      onClick={() => setShowConfig(!showConfig)}
-                      className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 ${
-                        showConfig 
-                          ? 'bg-[#f2e500] text-[#46443f]' 
-                          : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                      }`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      title="Model Settings"
-                    >
-                      <Settings size={12} className={showConfig ? 'rotate-90' : ''} style={{ transition: 'transform 0.3s' }} />
-                      <span className="text-[10px] font-semibold">Config</span>
-                    </motion.button>
+                    {userRole === 'admin' && (
+                      <motion.button
+                        onClick={() => setShowConfig(!showConfig)}
+                        className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg transition-all duration-200 ${
+                          showConfig 
+                            ? 'bg-[#f2e500] text-[#46443f]' 
+                            : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                        }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        title="Model Settings"
+                      >
+                        <Settings size={12} className={showConfig ? 'rotate-90' : ''} style={{ transition: 'transform 0.3s' }} />
+                        <span className="text-[10px] font-semibold">Config</span>
+                      </motion.button>
+                    )}
                   </div>
                 </div>
               </div>

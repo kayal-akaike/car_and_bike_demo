@@ -1,15 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { User, Bot, Clock, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, Bot, Clock, Sparkles } from 'lucide-react';
 import { Message, MessageContent, ToolResult } from '../types/chat';
 
 interface ChatMessageProps {
   message: Message;
+  userRole?: 'admin' | 'user';
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ message, userRole = 'user' }) => {
   const isUser = message.role === 'user';
-  const [expandedTools, setExpandedTools] = React.useState<Set<number>>(new Set());
 
   const messageVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
@@ -79,53 +79,44 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     return intentMap[intent as keyof typeof intentMap] || intentMap.default;
   };
 
-  const toggleTool = (index: number) => {
-    const newExpanded = new Set(expandedTools);
-    if (newExpanded.has(index)) {
-      newExpanded.delete(index);
-    } else {
-      newExpanded.add(index);
-    }
-    setExpandedTools(newExpanded);
+  const getToolFriendlyName = (toolName: string) => {
+    const toolNameMap: { [key: string]: { icon: string; text: string } } = {
+      search_bike: { icon: '🔍', text: 'Searching bikes' },
+      search_car: { icon: '🔍', text: 'Searching cars' },
+      get_bike_details: { icon: '🏍️', text: 'Retrieving bike details' },
+      get_car_details: { icon: '🚗', text: 'Retrieving car details' },
+      compare_bikes: { icon: '⚖️', text: 'Comparing bikes' },
+      compare_cars: { icon: '⚖️', text: 'Comparing cars' },
+      get_faq_response: { icon: '💬', text: 'Searching knowledge base' },
+      find_ev_chargers: { icon: '⚡', text: 'Finding EV charging stations' },
+      get_dealership_info: { icon: '🏢', text: 'Getting dealership info' },
+    };
+    
+    return toolNameMap[toolName] || { icon: '🔧', text: toolName.replace(/_/g, ' ') };
   };
 
+
+
   const renderToolResult = (tool: ToolResult, index: number) => {
-    const isExpanded = expandedTools.has(index);
-    const statusIcon = tool.status === 1 ? '✅' : '❌';
+    const friendlyTool = getToolFriendlyName(tool.name);
+    const statusIcon = tool.status === 1 ? '✓' : '✗';
 
     return (
-      <div key={index} className="mt-2 border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-        <button
-          onClick={() => toggleTool(index)}
-          className="w-full px-3 py-2 flex items-center justify-between hover:bg-gray-100 transition-colors"
-        >
-          <span className="text-xs font-medium text-gray-700">
-            {statusIcon} Tool: {tool.name}
-          </span>
-          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-        </button>
-        
-        {isExpanded && (
-          <div className="px-3 py-2 border-t border-gray-200 space-y-2">
-            {tool.input && (
-              <div>
-                <p className="text-xs font-semibold text-gray-600 mb-1">Input:</p>
-                <pre className="text-xs bg-white p-2 rounded border border-gray-200 overflow-x-auto">
-                  {JSON.stringify(tool.input, null, 2)}
-                </pre>
-              </div>
-            )}
-            {tool.output && (
-              <div>
-                <p className="text-xs font-semibold text-gray-600 mb-1">Output:</p>
-                <pre className="text-xs bg-white p-2 rounded border border-gray-200 overflow-x-auto max-h-32">
-                  {typeof tool.output === 'string' ? tool.output : JSON.stringify(tool.output, null, 2)}
-                </pre>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      <motion.div 
+        key={index} 
+        className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: index * 0.1 }}
+      >
+        <span className="text-lg">{friendlyTool.icon}</span>
+        <span className="text-xs font-medium text-gray-700 flex-1">
+          {friendlyTool.text}
+        </span>
+        <span className={`text-xs font-bold ${tool.status === 1 ? 'text-green-600' : 'text-red-600'}`}>
+          {statusIcon}
+        </span>
+      </motion.div>
     );
   };
 
@@ -349,8 +340,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
     
     return (
       <div className="space-y-3">
-        {/* Show tool results FIRST (before message text) - like Streamlit */}
-        {richContent.toolResults && richContent.toolResults.length > 0 && (
+        {/* Show tool results FIRST (before message text) - only for admin */}
+        {userRole === 'admin' && richContent.toolResults && richContent.toolResults.length > 0 && (
           <div className="space-y-2 mb-3">
             {richContent.toolResults.map((tool, index) => renderToolResult(tool, index))}
           </div>

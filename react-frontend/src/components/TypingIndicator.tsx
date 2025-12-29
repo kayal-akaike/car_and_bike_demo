@@ -1,8 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Bot, Sparkles } from 'lucide-react';
 
-const TypingIndicator: React.FC = () => {
+interface TypingIndicatorProps {
+  messages?: string[];
+}
+
+const TypingIndicator: React.FC<TypingIndicatorProps> = ({ 
+  messages = [
+    "Searching our database",
+    "Analyzing your request",
+    "Finding the best match",
+    "Retrieving details",
+    "Processing information"
+  ] 
+}) => {
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
+    }, 4000); // Change message every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [messages.length]);
   const dotVariants = {
     initial: { y: 0, scale: 1 },
     animate: { 
@@ -74,11 +95,14 @@ const TypingIndicator: React.FC = () => {
         <div className="relative flex items-center space-x-3">
           {/* Enhanced typing text */}
           <motion.span 
+            key={currentMessageIndex}
             className="text-sm font-medium bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
           >
-            Assistant is thinking
+            {messages[currentMessageIndex]}
           </motion.span>
           
           {/* Beautiful animated dots */}

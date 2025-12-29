@@ -486,6 +486,10 @@ def preprocess_car_data(raw_data: dict, car_id: str) -> dict:
     if "basic_info" in raw_data:
         basic_info = raw_data["basic_info"].copy()
         
+        # Convert description from list to string if needed
+        if "description" in basic_info and isinstance(basic_info["description"], list):
+            basic_info["description"] = " ".join(basic_info["description"])
+        
         # Add image reference if exists
         if "basic_info.image_url" in image_refs:
             basic_info["image_url"] = image_refs["basic_info.image_url"]
@@ -550,6 +554,9 @@ def preprocess_car_data(raw_data: dict, car_id: str) -> dict:
         # Try to extract boot space and ground clearance from description if not present
         if "basic_info" in processed and "description" in processed["basic_info"]:
             desc = processed["basic_info"]["description"]
+            # Handle description as list or string
+            if isinstance(desc, list):
+                desc = " ".join(desc) if desc else ""
             if desc:
                 # Boot Space
                 boot_match = re.search(r'Boot (?:capacity|space) of (\d+\s*[a-zA-Z]+)', desc, re.IGNORECASE)
@@ -607,12 +614,26 @@ def preprocess_car_data(raw_data: dict, car_id: str) -> dict:
     # 2. Extract keywords from description/pros
     text_to_scan = ""
     if "basic_info" in processed and processed["basic_info"].get("description"):
-        text_to_scan += processed["basic_info"]["description"] + " "
+        desc = processed["basic_info"]["description"]
+        # Handle description as list or string
+        if isinstance(desc, list):
+            text_to_scan += " ".join(desc) + " "
+        else:
+            text_to_scan += desc + " "
     if "pros" in processed and processed["pros"]:
-        text_to_scan += " ".join(processed["pros"]) + " "
+        pros = processed["pros"]
+        # Handle pros as list or string
+        if isinstance(pros, list):
+            text_to_scan += " ".join(str(p) for p in pros) + " "
+        else:
+            text_to_scan += str(pros) + " "
     if "expert_review" in raw_data:
         for content in raw_data["expert_review"].values():
-            text_to_scan += content + " "
+            # Handle content as list or string
+            if isinstance(content, list):
+                text_to_scan += " ".join(str(c) for c in content) + " "
+            else:
+                text_to_scan += str(content) + " "
             
     # Keywords to look for
     keywords = [
