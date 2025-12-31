@@ -18,6 +18,33 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# Initialize Langfuse for token tracking (with fallback for compatibility issues)
+try:
+    from langfuse import Langfuse, observe
+    
+    # Initialize Langfuse client
+    langfuse = Langfuse(
+        public_key=os.getenv("LANGFUSE_PUBLIC_KEY"),
+        secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
+        host=os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+    )
+    print("✅ Langfuse initialized successfully for token tracking")
+except Exception as e:
+    print(f"⚠️ Langfuse initialization failed: {e}")
+    print("⚠️ Continuing without Langfuse tracking...")
+    
+    # Fallback: Create no-op decorator and client
+    def observe(name=None, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+    
+    class MockLangfuse:
+        def flush(self):
+            pass
+    
+    langfuse = MockLangfuse()
+
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
@@ -123,6 +150,7 @@ async def verify_password(request: PasswordVerification):
     return {"valid": request.password == app_password}
 
 @app.post("/chat")
+@observe(name="chat_endpoint")  # Track this endpoint with Langfuse
 async def chat(request: ChatRequest) -> ChatResponse:
     """Handle chat messages and return bot response."""
     try:
@@ -179,6 +207,9 @@ async def chat(request: ChatRequest) -> ChatResponse:
                         metadata=tool_result.metadata if hasattr(tool_result, 'metadata') else None
                     ))
         
+        # Flush Langfuse to ensure data is sent
+        langfuse.flush()
+        
         return ChatResponse(
             message=final_response.final_message.content if final_response.final_message else "I'm sorry, I couldn't process your request.",
             intent=intent_str,
@@ -186,6 +217,11 @@ async def chat(request: ChatRequest) -> ChatResponse:
             tool_results=tool_results,
             conversation_id="default"  # TODO: Implement proper conversation management
         )
+        
+    except Exception as e:
+        print(f"Chat error: {e}")
+        langfuse.flush()  # Flush even on error
+        raise HTTPException(status_code=500, detail=f"Error processing chat: {str(e)}")
         
     except Exception as e:
         print(f"Chat error: {e}")
@@ -272,6 +308,54 @@ async def get_intents():
             "goodbye"
         ]
     }
+
+@app.get("/analytics/tokens")
+async def get_token_analytics():
+    """Get token usage statistics for pricing."""
+    try:
+        traces = langfuse.fetch_traces(limit=100)  # Last 100 requests
+        
+        token_counts = []
+        input_tokens = []
+        output_tokens = []
+        costs = []
+        
+        for trace in traces.data:
+            if hasattr(trace, 'usage') and trace.usage:
+                total = trace.usage.get('total', 0) or 0
+                if total > 0:
+                    token_counts.append(total)
+                    input_tokens.append(trace.usage.get('input', 0) or 0)
+                    output_tokens.append(trace.usage.get('output', 0) or 0)
+            
+            if hasattr(trace, 'calculated_total_cost') and trace.calculated_total_cost:
+                costs.append(trace.calculated_total_cost)
+        
+        if not token_counts:
+            return {
+                "error": "No token data available yet",
+                "message": "Send some requests first to collect token statistics"
+            }
+        
+        from statistics import mean, median
+        
+        stats = {
+            "total_requests": len(token_counts),
+            "total_tokens": sum(token_counts),
+            "average_tokens_per_request": round(mean(token_counts), 2),
+            "median_tokens_per_request": round(median(token_counts), 2),
+            "min_tokens": min(token_counts),
+            "max_tokens": max(token_counts),
+            "average_input_tokens": round(mean(input_tokens), 2) if input_tokens else 0,
+            "average_output_tokens": round(mean(output_tokens), 2) if output_tokens else 0,
+            "total_cost_usd": round(sum(costs), 6) if costs else 0,
+            "average_cost_per_request": round(mean(costs), 6) if costs else 0,
+        }
+        
+        return stats
+        
+    except Exception as e:
+        return {"error": str(e)}
 
 if __name__ == "__main__":
     import uvicorn

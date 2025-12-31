@@ -164,7 +164,7 @@ def _get_ai_message_from_oai_response(response: OAIResponse) -> AIMessage:
     and reasoning information into our internal message format.
     
     Args:
-        response: OpenAI API response object
+        response: OpenAI API response object (ChatCompletion)
         
     Returns:
         AIMessage with parsed content, tool calls, and reasoning
@@ -173,38 +173,68 @@ def _get_ai_message_from_oai_response(response: OAIResponse) -> AIMessage:
         ValueError: If an unknown content or output type is encountered
     """
     ai_message = AIMessage(id=response.id, content="")
-    for output in response.output:
-        if output.type == "message":
-            for content in output.content:
-                if content.type == "output_text":
-                    ai_message.content += content.text
-                else:
-                    raise ValueError(
-                        f"Unknown content type: {content.type} data: {content}"
+    
+    # Handle standard ChatCompletion response format
+    if hasattr(response, 'choices') and len(response.choices) > 0:
+        choice = response.choices[0]
+        message = choice.message
+        
+        # Extract text content
+        if message.content:
+            ai_message.content = message.content
+        
+        # Extract tool calls if present
+        if hasattr(message, 'tool_calls') and message.tool_calls:
+            for tool_call in message.tool_calls:
+                parsed_input = parse_partial_json(tool_call.function.arguments)
+                if not isinstance(parsed_input, dict):
+                    parsed_input = {}
+                ai_message.tool_call_requests.append(
+                    ToolCallRequest(
+                        id=tool_call.id,
+                        name=tool_call.function.name,
+                        raw_input=tool_call.function.arguments,
+                        input=parsed_input,
                     )
-        elif output.type == "function_call":
-            parsed_input = parse_partial_json(output.arguments)
-            if not isinstance(parsed_input, dict):
-                parsed_input = {}
-            ai_message.tool_call_requests.append(
-                ToolCallRequest(
-                    id=output.call_id,
-                    name=output.name,
-                    raw_input=output.arguments,
-                    input=parsed_input,
                 )
-            )
-        elif output.type == "reasoning":
-            ai_message.reasoning = Reasoning(
-                id=output.id,
-                summaries=[summary.text for summary in output.summary]
-                if output.summary
-                else [],
-                contents=[content.text for content in output.content] if output.content else [],
-            )
+        
+        return ai_message
+    
+    # Fallback for old/unknown format (backward compatibility)
+    if hasattr(response, 'output'):
+        for output in response.output:
+            if output.type == "message":
+                for content in output.content:
+                    if content.type == "output_text":
+                        ai_message.content += content.text
+                    else:
+                        raise ValueError(
+                            f"Unknown content type: {content.type} data: {content}"
+                        )
+            elif output.type == "function_call":
+                parsed_input = parse_partial_json(output.arguments)
+                if not isinstance(parsed_input, dict):
+                    parsed_input = {}
+                ai_message.tool_call_requests.append(
+                    ToolCallRequest(
+                        id=output.call_id,
+                        name=output.name,
+                        raw_input=output.arguments,
+                        input=parsed_input,
+                    )
+                )
+            elif output.type == "reasoning":
+                ai_message.reasoning = Reasoning(
+                    id=output.id,
+                    summaries=[summary.text for summary in output.summary]
+                    if output.summary
+                    else [],
+                    contents=[content.text for content in output.content] if output.content else [],
+                )
 
-        else:
-            raise ValueError(f"Unknown output type: {output.type}")
+            else:
+                raise ValueError(f"Unknown output type: {output.type}")
+    
     return ai_message
 
 

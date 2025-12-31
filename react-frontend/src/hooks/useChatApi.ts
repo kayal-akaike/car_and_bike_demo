@@ -54,7 +54,7 @@ export const useChatApi = () => {
         message,
         conversation_history: history,
       }, {
-        timeout: 30000, // 30 second timeout
+        timeout: 180000, // 120 second timeout (2 minutes) for complex queries
         headers: {
           'Content-Type': 'application/json',
         }
